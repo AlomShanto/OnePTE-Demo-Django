@@ -1,5 +1,6 @@
 from django.contrib import admin
-from spoken_test.models.models import SST,PartialScores
+from spoken_test.models.models import SST
+from spoken_test.models.partialScores import PartialScores
 
-# Register your models here.
-# admin.site.register(SST)
+# todo.
+#admin.site.register(SST)

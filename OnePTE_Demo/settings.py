@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'spoken_test'
+    'spoken_test',
+    'reorder_paragraph'
 ]
 
 MIDDLEWARE = [
