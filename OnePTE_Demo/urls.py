@@ -18,9 +18,12 @@ from django.contrib import admin
 from django.urls import path,include
 from spoken_test import urls as sst_urls
 from reorder_paragraph import urls as ro_urls
+from reading_multiple_choice import urls as rrmcq_urls
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include(sst_urls,namespace='spoken_test')),
-    path('',include(ro_urls,namespace='reorder_paragraph'))
+    path('',include(ro_urls,namespace='reorder_paragraph')),
+    path('',include(rrmcq_urls,namespace='reading_multiple_choice'))
 ]
