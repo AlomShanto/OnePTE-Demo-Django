@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-class PartialScores():
+class PartialScores(models.Model):
     questionId = models.IntegerField()
     contentPoints = models.FloatField(
         default=0,
