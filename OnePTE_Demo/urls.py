@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from spoken_test import urls as spoken_urls
+from spoken_test import urls as sst_urls
+from reorder_paragraph import urls as ro_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include(spoken_urls,namespace='spoken_test'))
+    path('',include(sst_urls,namespace='spoken_test')),
+    path('',include(ro_urls,namespace='reorder_paragraph'))
 ]
