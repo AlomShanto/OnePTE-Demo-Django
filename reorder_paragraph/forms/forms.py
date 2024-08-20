@@ -7,7 +7,7 @@ class ReorderingParagraphForm(forms.ModelForm):
         fields = ['title', 'question', 'correctAns', 'ansScript']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'question': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter paragraphs separated by commas'}),
+            'question': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'correctAns': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter numbers separated by commas'}),
             'ansScript': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter numbers separated by commas'}),
         }
@@ -24,8 +24,10 @@ class ReorderingParagraphForm(forms.ModelForm):
             raise forms.ValidationError("Please enter a valid list of numbers separated by commas.")
 
     def clean_ansScript(self):
-        data = self.cleaned_data['ansScript']
-        try:
-            return ','.join(map(str, [int(x.strip()) for x in data.split(',')]))
-        except ValueError:
-            raise forms.ValidationError("Please enter a valid list of numbers separated by commas.")
+        data = self.cleaned_data.get('ansScript', '')  # Handle empty case
+        if data:
+            try:
+                return ','.join(map(str, [int(x.strip()) for x in data.split(',')]))
+            except ValueError:
+                raise forms.ValidationError("Please enter a valid list of numbers separated by commas.")
+        return data  # Return empty if no data

@@ -1,32 +1,47 @@
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from reading_multiple_choice.models.models import ReadingMultipleChoice
 from reading_multiple_choice.forms.forms import ReadingMultipleChoiceForm
-
-# class ReadingMultipleChoiceCreateView(CreateView):
-#     model = ReadingMultipleChoice()
-#     template_name = 'reading_multiple_choice/create_test.html'
-
-# class ReadingMultipleChoiceUpdateView(UpdateView):
-#     model = ReadingMultipleChoice()
-#     template_name = 'reading_multiple_choice/update_test.html'
-
-
-# class ReadingMultipleChoiceDeleteView(DeleteView):
-#     model = ReadingMultipleChoice()
-#     # template_name = 'reading_multiple_choice/delete_test.html'
 
 @csrf_exempt
 def create_reading_multiple_choice(request):
     if request.method == 'POST':
         form = ReadingMultipleChoiceForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('reading_multipe_choice:create_test')
-    else:
-        form = ReadingMultipleChoiceForm()
-    return render(request, 'C:\\Users\suhayel\Desktop\OnePTE Demo\OnePTE_Demo\reading_multipe_choice\\templates\reading_multipe_choice\reordering.html', {'form': form})
+            obj = form.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Reading Multiple Choice created successfully',
+                'id': obj.pk
+            }, status=201)
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'errors': form.errors
+            }, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=405)
+
+@csrf_exempt
+def all_details_reading_multiple_choice(request):
+    if request.method == 'GET':
+        objs = ReadingMultipleChoice.objects.all()
+        data = []
+        for obj in objs:
+            data.append({
+                'id': obj.id,
+                'title': obj.title,
+                'question': obj.question.split(','),  # Convert comma-separated string back to list
+                'options': obj.options.split(','),  # Convert comma-separated string back to list
+                'correctAns': list(map(int, obj.correctAns.split(','))),  # Convert comma-separated string to list of integers
+                'ansScript': list(map(int, obj.ansScript.split(','))) if obj.ansScript else [],  # Convert if not empty
+                'score': obj.score,
+            })
+        return JsonResponse({'status': 'success', 'data': data}, status=200)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def update_reading_multiple_choice(request, pk):
@@ -35,15 +50,30 @@ def update_reading_multiple_choice(request, pk):
         form = ReadingMultipleChoiceForm(request.POST, instance=obj)
         if form.is_valid():
             form.save()
-            return redirect('reading_multipe_choice:update_test', pk=pk)
-    else:
-        form = ReadingMultipleChoiceForm(instance=obj)
-    return render(request, 'reading_multipe_choice/update_test.html', {'form': form})
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Reading Multiple Choice updated successfully'
+            }, status=200)
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'errors': form.errors
+            }, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=405)
 
 @csrf_exempt
 def delete_reading_multiple_choice(request, pk):
     obj = get_object_or_404(ReadingMultipleChoice, pk=pk)
     if request.method == 'POST':
         obj.delete()
-        return redirect('reading_multipe_choice:create_test')
-    return render(request, 'reading_multipe_choice/delete_test.html', {'object': obj})
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Reading Multiple Choice deleted successfully'
+        }, status=200)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=405)

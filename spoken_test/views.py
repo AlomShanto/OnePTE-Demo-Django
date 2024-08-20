@@ -1,55 +1,55 @@
-# from django.views.generic import CreateView, UpdateView, DeleteView
-# from .models.models import SummarizeSpokenText
-
-# class SpokenTextCreateView(CreateView):
-#     model = SummarizeSpokenText
-#     fields = ['title', 'ansTimeLimit']
-#     template_name = "C:\\Users\suhayel\Desktop\OnePTE Demo\OnePTE_Demo\spoken_test\\templates\spoken_test\spoken.html"
-
-# class SpokenTextUpdateView(UpdateView):
-#     model = SummarizeSpokenText
-#     fields = ['title', 'ansTimeLimit', 'audios', 'ansScript', 'scores']
-#     template_name = 'spoken_test/update_test.html'
-
-# class SpokenTextDeleteView(DeleteView):
-#     model = SummarizeSpokenText
-#     template_name = 'spoken_test/delete_test.html'
-#     success_url = '/'
-
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from spoken_test.models.models import SummarizeSpokenText
 from spoken_test.forms.forms import SummarizeSpokenTextForm
-
 
 @csrf_exempt
 def create_spoken_text(request):
     if request.method == 'POST':
-        form = SummarizeSpokenTextForm(request.POST)
+        form = SummarizeSpokenTextForm(request.POST, request.FILES)  # Use request.FILES to handle file uploads
         if form.is_valid():
             form.save()
-            return redirect('spoken_test:create_test')
-    else:
-        form = SummarizeSpokenTextForm()
-    return render(request, 'C:\\Users\suhayel\Desktop\OnePTE Demo\OnePTE_Demo\spoken_test\\templates\spoken_test\spoken.html', {'form': form})
+            return JsonResponse({'status': 'success', 'message': 'SummarizeSpokenText created successfully'}, status=201)
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def all_details_spoken_text(request):
+    if request.method == 'GET':
+        objs = SummarizeSpokenText.objects.all()
+        data = []
+        for obj in objs:
+            data.append({
+                'id': obj.id,
+                'title': obj.title,
+                'ansTimeLimit': obj.ansTimeLimit,
+                'audios': obj.audios.url if obj.audios else None,  # Return the URL to the file if available
+                'ansScript': obj.ansScript,
+                'scores': str(obj.scores) if obj.scores else None,  # Adjust based on how PartialScores is represented
+            })
+        return JsonResponse({'status': 'success', 'data': data}, status=200)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
 
 @csrf_exempt
 def update_spoken_text(request, pk):
     obj = get_object_or_404(SummarizeSpokenText, pk=pk)
     if request.method == 'POST':
-        form = SummarizeSpokenTextForm(request.POST, instance=obj)
+        form = SummarizeSpokenTextForm(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             form.save()
-            return redirect('spoken_test:update_test', pk=pk)
-    else:
-        form = SummarizeSpokenTextForm(instance=obj)
-    return render(request, 'spoken_test/update_test.html', {'form': form})
+            return JsonResponse({'status': 'success', 'message': 'SummarizeSpokenText updated successfully'}, status=200)
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
 
 @csrf_exempt
 def delete_spoken_text(request, pk):
     obj = get_object_or_404(SummarizeSpokenText, pk=pk)
     if request.method == 'POST':
         obj.delete()
-        return redirect('spoken_test:create_test')
-    return render(request, 'spoken_test/delete_test.html', {'object': obj})
+        return JsonResponse({'status': 'success', 'message': 'SummarizeSpokenText deleted successfully'}, status=200)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
