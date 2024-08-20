@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'spoken_test',
     'reorder_paragraph',
-    'reading_multiple_choice'
+    'reading_multiple_choice',
+    'accounts',
 ]
 
 MIDDLEWARE = [
