@@ -10,13 +10,22 @@ from django.views.decorators.csrf import csrf_exempt
 def practice_history(request, user_id):
     if request.method == 'GET':
         user = get_object_or_404(User, pk=user_id)  # Get the user by ID or return 404
-        submissions = SubmissionHistory.objects.filter(user=user).order_by('-timestamp')
+        exam_type = request.GET.get('exam_type')  # Get exam_type from query params
+
+        # Filter submissions by user and optionally by exam_type
+        if exam_type:
+            submissions = SubmissionHistory.objects.filter(user=user, exam_type=exam_type).order_by('-timestamp')
+        else:
+            submissions = SubmissionHistory.objects.filter(user=user).order_by('-timestamp')
+        
         data = [{
             'exam_type': submission.exam_type,
             'question_id': submission.question_id,
             'timestamp': submission.timestamp.isoformat(),  # Convert timestamp to ISO 8601 format
         } for submission in submissions]
+        
         return JsonResponse({'status': 'success', 'data': data}, status=200)
+    
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @csrf_exempt
