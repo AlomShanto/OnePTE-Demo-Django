@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'reorder_paragraph',
     'reading_multiple_choice',
     'accounts',
+    'practice_history'
 ]
 
 MIDDLEWARE = [
